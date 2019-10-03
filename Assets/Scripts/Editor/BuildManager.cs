@@ -6,11 +6,11 @@ using UnityEngine;
 
 public class BuildManager
 {
-    [MenuItem("Build Tools/Build")]
+    [MenuItem("Tools/Build Manager/Build")]
     public static void BuildProject()
     {
         //Get filename
-        string path = EditorUtility.SaveFolderPanel("Choose Location of Built Game", "", "");
+        string path = EditorUtility.SaveFolderPanel("Choose Location of Build", "", "");
         List<string> levels = new List<string>();
         foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
             levels.Add(scene.path);
@@ -32,11 +32,21 @@ public class BuildManager
         SceneManifest.CreateSceneManifest(folderNames, path);
     }
 
-    [MenuItem("Build Tools/Build and Run")]
+    public static string BuildProject(string path)
+    {
+        string level = EditorBuildSettings.scenes[0].path;
+        int sceneNameLength = level.Length - 19;    //the 19 comes from 'Assets/Scenes/' + '.unity' that are removed
+        string folderName = level.Substring(13, sceneNameLength);
+        string exePath = path + folderName + "/Build.exe";
+        BuildPipeline.BuildPlayer(new string[] { level }, exePath, BuildTarget.StandaloneWindows64, BuildOptions.None);
+        return exePath;
+    }
+
+    [MenuItem("Tools/Build Manager/Build and Run")]
     public static void BuildRunProject()
     {
         //Get filename
-        string path = EditorUtility.SaveFolderPanel("Choose Location of Built Game", "", "");
+        string path = EditorUtility.SaveFolderPanel("Choose Location of Build", "", "");
         List<string> levels = new List<string>();
         foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
             levels.Add(scene.path);
@@ -61,5 +71,21 @@ public class BuildManager
         Process proc = new Process();
         proc.StartInfo.FileName = exePaths[0];
         proc.Start();
+    }
+
+    public static string BuildRunProject(string path)
+    {
+        string level = EditorBuildSettings.scenes[0].path;
+        int sceneNameLength = level.Length - 19;    //the 19 comes from 'Assets/Scenes/' + '.unity' that are removed
+        string folderName = level.Substring(13, sceneNameLength);
+        string exePath = path + folderName + "/Build.exe";
+        BuildPipeline.BuildPlayer(new string[] { level }, exePath, BuildTarget.StandaloneWindows64, BuildOptions.None);
+
+        //Run executable
+        Process proc = new Process();
+        proc.StartInfo.FileName = exePath;
+        proc.Start();
+
+        return exePath;
     }
 }

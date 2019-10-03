@@ -9,26 +9,13 @@ using Debug = UnityEngine.Debug;
 
 public class SceneLoader : MonoBehaviour
 {
-    private string rootPath;
     private List<SceneInfo> sceneManifest = new List<SceneInfo>();
 
     private void Start()
     {
-        string dataPath = Application.dataPath;
-        int slashCount = 0;
-        int finalPathLength = 0;
-        for (int i = dataPath.Length - 1; i > 0; i--)
-        {
-            if (dataPath[i] == '/')
-                slashCount++;
-
-            if (slashCount == 1)
-                finalPathLength = i;
-        }
-
-        rootPath = dataPath.Substring(0, finalPathLength);
-        if (File.Exists(rootPath + "/SceneManifest.xml"))
-            sceneManifest = XMLOp.Deserialize<List<SceneInfo>>(rootPath + "/SceneManifest.xml");
+        string manifest = FindFile(Application.dataPath, "SceneManifest.xml", true);
+        if (manifest != "")
+            sceneManifest = XMLOp.Deserialize<List<SceneInfo>>(manifest);
     }
 
     private void Update()
@@ -52,7 +39,7 @@ public class SceneLoader : MonoBehaviour
         try
         {
             Process newScene = new Process();
-            newScene.StartInfo.FileName = rootPath + sceneManifest[index].folderName + SceneManifest.BUILD_NAME;
+            newScene.StartInfo.FileName = FindFile(Application.dataPath, (sceneManifest[index].exeName != "" ? sceneManifest[index].exeName : SceneManifest.BUILD_NAME), true);
             newScene.Start();
             Application.Quit();
         }
@@ -60,6 +47,16 @@ public class SceneLoader : MonoBehaviour
         {
             Debug.LogError(e);
         }
+    }
+
+    string FindFile(string searchPath, string fileName, bool searchParentOnFail)
+    {
+        foreach(string file in Directory.EnumerateFiles(searchPath, fileName, SearchOption.AllDirectories))
+            return file;
+
+        if (searchParentOnFail)
+            return FindFile(Directory.GetParent(searchPath).FullName, fileName, searchParentOnFail);
+        else return "";
     }
 }
 
@@ -73,27 +70,47 @@ public class SceneManifest
         for (int i = 0; i < folderNames.Count; i++)
         {
             //Debug.Log(folderNames[i]);
-            sceneInfoList.Add(new SceneInfo(i + 1, folderNames[i]));
+            sceneInfoList.Add(new SceneInfo(i + 1, folderNames[i], false));
         }
 
         XMLOp.Serialize(sceneInfoList, manifestPath + "/SceneManifest.xml");
     }
+
+    public static void CreateSceneManifest(List<SceneInfo> sceneInfoList, string manifestPath)
+    {
+        XMLOp.Serialize(sceneInfoList, manifestPath + "/SceneManifest.xml");
+    }
 }
 
+[Serializable]
 public class SceneInfo
 {
     public int sceneIndex;
+    public string exeName;
     public string folderName;
+    public bool hubScene;
 
     public SceneInfo()
     {
         sceneIndex = -1;
+        exeName = "";
         folderName = "";
+        hubScene = false;
     }
 
-    public SceneInfo(int _sceneIndex, string _folderName)
+    public SceneInfo(int _sceneIndex, string _exePath, string _folderName, bool _hubScene)
     {
         sceneIndex = _sceneIndex;
+        exeName = _exePath;
         folderName = _folderName;
+        hubScene = _hubScene;
+    }
+
+    public SceneInfo(int _sceneIndex, string _folderName, bool _hubScene)
+    {
+        sceneIndex = _sceneIndex;
+        exeName = "";
+        folderName = _folderName;
+        hubScene = _hubScene;
     }
 }
