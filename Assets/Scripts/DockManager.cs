@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class DockManager : MonoBehaviour
 {
     public static DockManager Instance;
-    public Dock[] testers;
+    public Dock[] docks;
     public GameObject projectTemplate;
 
     public GameObject environment;
@@ -25,10 +25,10 @@ public class DockManager : MonoBehaviour
 
     private void Start()
     {
-        foreach(Dock tester in testers)
+        for(int i = 0; i < docks.Length; i++)
         {
             Project project = Instantiate(projectTemplate, transform).GetComponent<Project>();
-            project.SetUpProject(tester.name, tester.sky);
+            project.SetUpProject(docks[i].name, docks[i].sky, (i + 1));
         }
     }
 

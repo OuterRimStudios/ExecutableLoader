@@ -6,9 +6,9 @@ using TMPro;
 public class Project : MonoBehaviour
 {
     string projectName;
-
     Material defaultSky;
     Material skyboxMaterial;
+    int index;
 
     TextMeshProUGUI text;
 
@@ -17,12 +17,13 @@ public class Project : MonoBehaviour
         defaultSky = RenderSettings.skybox;
     }
 
-    public void SetUpProject(string _name, Material _sky)
+    public void SetUpProject(string _name, Material _sky, int _index)
     {
         projectName = _name;
         skyboxMaterial = _sky;
         text = GetComponentInChildren<TextMeshProUGUI>();
         text.text = projectName;
+        index = _index;
     }
 
     public void Select()
