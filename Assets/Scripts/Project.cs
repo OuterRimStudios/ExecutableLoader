@@ -28,7 +28,7 @@ public class Project : MonoBehaviour
 
     public void Select()
     {
-
+        SceneLoader.Instance.LoadExecutable(index);
     }
 
     public void Interact()

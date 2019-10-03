@@ -9,7 +9,13 @@ using Debug = UnityEngine.Debug;
 
 public class SceneLoader : MonoBehaviour
 {
+    public static SceneLoader Instance;
     private List<SceneInfo> sceneManifest = new List<SceneInfo>();
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -34,7 +40,7 @@ public class SceneLoader : MonoBehaviour
         }
     }
 
-    private void LoadExecutable(int index)
+    public void LoadExecutable(int index)
     {
         try
         {
