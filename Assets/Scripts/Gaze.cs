@@ -41,8 +41,8 @@ public class Gaze : MonoBehaviour
             Debug.Log("Time: " + time);
             if (time <= 0)
             {
-                lastProject.Select();
                 DockManager.Instance.Selected();
+                lastProject.Select();
             }
         }
         else
