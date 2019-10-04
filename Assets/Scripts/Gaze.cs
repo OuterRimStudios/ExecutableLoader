@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OuterRimStudios.Utilities;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Gaze : MonoBehaviour
 {
@@ -18,13 +19,38 @@ public class Gaze : MonoBehaviour
 
     Project lastProject;
 
+    bool waiting;
+
     public void Start()
     {
         ResetTime();
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        waiting = true;
+        StartCoroutine(Wait());
+    }
+
+    IEnumerator Wait()
+    {
+        yield return new WaitForSeconds(5);
+        waiting = false;
+    }
+
     public void Update()
     {
+        if (waiting) return;
         Ray ray = new Ray(transform.position, transform.forward);
         RaycastHit hit;
 
